@@ -1,0 +1,76 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./src/**/*.{html,js,ts,jsx,tsx}",
+  ],
+  darkMode: "class",
+  theme: {
+    extend: {
+      "colors": {
+        "on-primary-container": "#8690ee",
+        "error": "#ba1a1a",
+        "inverse-primary": "#bdc2ff",
+        "surface-container-highest": "#e1e3e4",
+        "primary-fixed-dim": "#bdc2ff",
+        "on-surface-variant": "#454652",
+        "on-primary-fixed-variant": "#343d96",
+        "on-error-container": "#93000a",
+        "on-tertiary-fixed": "#410000",
+        "on-secondary-fixed-variant": "#544600",
+        "on-tertiary-container": "#ff6551",
+        "on-secondary-fixed": "#221b00",
+        "surface-tint": "#4c56af",
+        "surface-container-low": "#f3f4f5",
+        "on-secondary-container": "#6f5c00",
+        "outline": "#767683",
+        "on-primary-fixed": "#000767",
+        "tertiary-fixed-dim": "#ffb4a8",
+        "secondary-fixed-dim": "#e9c400",
+        "surface-bright": "#f8f9fa",
+        "tertiary": "#400000",
+        "primary-container": "#1a237e",
+        "inverse-on-surface": "#f0f1f2",
+        "on-error": "#ffffff",
+        "surface-dim": "#d9dadb",
+        "secondary": "#705d00",
+        "on-primary": "#ffffff",
+        "surface": "#f8f9fa",
+        "on-tertiary-fixed-variant": "#930000",
+        "surface-container-lowest": "#ffffff",
+        "primary": "#000666",
+        "tertiary-container": "#680000",
+        "outline-variant": "#c6c5d4",
+        "on-tertiary": "#ffffff",
+        "secondary-fixed": "#ffe170",
+        "tertiary-fixed": "#ffdad4",
+        "surface-container": "#edeeef",
+        "surface-variant": "#e1e3e4",
+        "on-secondary": "#ffffff",
+        "primary-fixed": "#e0e0ff",
+        "background": "#f8f9fa",
+        "inverse-surface": "#2e3132",
+        "secondary-container": "#fdd400",
+        "on-background": "#191c1d",
+        "error-container": "#ffdad6",
+        "surface-container-high": "#e7e8e9",
+        "on-surface": "#191c1d"
+      },
+      "spacing": {
+        "stack-gap": "1.5rem",
+        "board-gap": "12px",
+        "container-padding": "2rem",
+        "slot-size-desktop": "80px",
+        "slot-size-mobile": "44px"
+      },
+      "fontFamily": {
+        "headline-lg": "Plus Jakarta Sans",
+        "headline-md": "Plus Jakarta Sans",
+        "headline-lg-mobile": "Plus Jakarta Sans",
+        "body-md": "Plus Jakarta Sans",
+        "label-caps": "Plus Jakarta Sans",
+        "score-number": "Plus Jakarta Sans"
+      }
+    }
+  },
+  plugins: [],
+}

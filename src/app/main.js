@@ -1,84 +1,162 @@
-var app = {
-    loader: {},
+import { Config } from './config/game.config.js';
+import { Engine } from './core/game.engine.js';
+import { AI } from './ai/ai.js';
+
+const app = {
     init: function () {
-        app.loader.require({
-            board: 'app/board/board.js',
-            engine: 'app/core/game.engine.js',
-            cpu: 'app/ai/ai.js',
-            socketIo: 'utils/socket.io.js'
-        }, app.startGame);
+        this.engine = new Engine();
+        this.ai = new AI(Config.P2, Config.P1, Config.Dificult.Medium);
+
+        this.scores = { player: 0, machine: 0 };
+        this.isProcessingMove = false;
+
+        this.bindEvents();
+        this.renderBoard();
+        this.updateActiveCard();
     },
+
     bindEvents: function () {
+        this.engine.onPlay = (i, j, piece) => {
+            this.renderPiece(i, j, piece);
+            this.updateActiveCard();
+        };
 
-    },
-    recivedEvents: function () {
+        this.engine.onGameOver = (winner) => {
+            setTimeout(() => {
+                this.endGame(winner);
+            }, 500);
+        };
 
-    },
-    startGame: function () {
-        console.log('/*-- App is ready --*/');
-        if (ROBIN) { //If console log is open (debug mode) load utilities for debug
-            app.loader.require({
-                debugutilities: 'app/js/debugutilites.js'
-            });
+        const grid = document.getElementById('grid-visual');
+        if (grid) {
+             grid.addEventListener('click', (e) => {
+                  const target = e.target.closest('[data-col]');
+                  if (target && !this.engine._isGameOver && this.engine._currentPlayer === Config.P1 && !this.isProcessingMove) {
+                      const col = parseInt(target.getAttribute('data-col'), 10);
+                      this.handlePlayerMove(col);
+                  }
+             });
         }
-    },
-    doLogin: function () {
-        var http = new XMLHttpRequest();
-        var url = "http://105.102.48.44:8080/login";
-        var params = "user=limacoa&pass=samex1103";
-        http.open("POST", url, true);
 
-        //Send the proper header information along with the request
-        http.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-
-        http.onreadystatechange = function () { //Call a function when the state changes.
-            if (http.readyState == 4 && http.status == 200) {
-                app.User = JSON.parse(http.responseText);
-                app.connect();
-            }
-        }
-        http.send(params);
-    },
-    connect: function () {
-        var ia = new Game.AI(Game.Config.P1, Game.Config.P2, 2);
-        app.socket = io.connect("http://105.102.48.44:8080/", {
-            query: 'token=' + app.User.access_token
-        });
-        app.socket.on("error", function (error) {
-            console.error(error);
-        });
-        app.socket.on('connect', function() {
-            console.log('conected');            
-        });
-        app.socket.on('room:all', function(rooms) {
-            console.log(rooms);
-            app.socket.emit("room/join", rooms[0]);
-        });
-        app.socket.on('room:joined', function(data) {
-            console.log(data);
-        });
-        app.socket.on('game:training:code', function(code) {
-            console.log(code);
-        });
-        app.socket.on('room:play:result', function(data) {
-            console.log(data);
-            if(data.currentPlayer == "limacoa") {
-                ia.me = data.players[0].UserName == "limacoa" ? Game.Config.P1: Game.Config.P2;
-                ia.human = ia.me == Game.Config.P1?Game.Config.P2:Game.Config.P1;
-                var board = new Game.Board(data.board);
-                var move = ia.play(board);
-                console.log("Play --> ", move);
-                app.socket.emit("room/play", {i:move[0], j:move[1]});
+        const restartBtns = document.querySelectorAll('button');
+        restartBtns.forEach(btn => {
+            if(btn.textContent.trim().toUpperCase().includes('RESET') || btn.textContent.trim().toUpperCase().includes('PLAY AGAIN') || btn.textContent.trim().toUpperCase().includes('RESTART')) {
+                 btn.addEventListener('click', (e) => {
+                      e.preventDefault();
+                      this.reset();
+                 });
             }
         });
     },
-    training: function() {
-        app.socket.emit("game/training/request");
+
+    updateActiveCard: function () {
+        const turnText = document.getElementById('turn-text');
+        const turnDot = document.getElementById('turn-dot');
+        const cardPlayer = document.getElementById('card-player');
+        const cardMachine = document.getElementById('card-machine');
+
+        if (!turnText || !turnDot || !cardPlayer || !cardMachine) return;
+
+        if (this.engine._currentPlayer === Config.P1) {
+            cardPlayer.classList.add('border-error');
+            cardMachine.classList.remove('border-secondary-fixed-dim');
+            turnText.innerText = "YOUR TURN";
+            turnDot.className = "w-3 h-3 rounded-full bg-error";
+        } else {
+            cardMachine.classList.add('border-secondary-fixed-dim');
+            cardPlayer.classList.remove('border-error');
+            turnText.innerText = "MACHINE THINKING";
+            turnDot.className = "w-3 h-3 rounded-full bg-secondary-fixed-dim animate-pulse";
+        }
     },
-    botFight: function() {
-        app.socket.emit("room/all");
+
+    endGame: function (winner) {
+        const winnerModal = document.getElementById('winner-modal');
+        const winnerTitle = document.getElementById('winner-title');
+        const winnerIcon = document.getElementById('winner-icon');
+        const scorePlayerEl = document.getElementById('score-player');
+        const scoreMachineEl = document.getElementById('score-machine');
+
+        if (!winnerModal) return;
+
+        if (winner === Config.P1) {
+            this.scores.player++;
+            if (scorePlayerEl) scorePlayerEl.innerText = this.scores.player;
+            winnerTitle.innerText = "YOU WIN!";
+            winnerIcon.className = "material-symbols-outlined text-6xl text-secondary-container";
+            winnerIcon.innerText = "emoji_events";
+        } else if (winner === Config.P2) {
+            this.scores.machine++;
+            if (scoreMachineEl) scoreMachineEl.innerText = this.scores.machine;
+            winnerTitle.innerText = "MACHINE WINS";
+            winnerIcon.className = "material-symbols-outlined text-6xl text-error";
+            winnerIcon.innerText = "smart_toy";
+        } else {
+            winnerTitle.innerText = "IT'S A DRAW!";
+            winnerIcon.className = "material-symbols-outlined text-6xl text-on-surface-variant";
+            winnerIcon.innerText = "balance";
+        }
+
+        winnerModal.classList.remove('opacity-0', 'pointer-events-none');
+    },
+
+    handlePlayerMove: async function (col) {
+        this.isProcessingMove = true;
+        await this.engine.play(0, col, this.ai);
+        this.isProcessingMove = false;
+    },
+
+    reset: function () {
+        this.engine.restart();
+        this.renderBoard();
+        this.updateActiveCard();
+        const winnerModal = document.getElementById('winner-modal');
+        if (winnerModal) {
+            winnerModal.classList.add('opacity-0', 'pointer-events-none');
+        }
+    },
+
+    renderBoard: function () {
+        const grid = document.getElementById('grid-visual');
+        if (!grid) return;
+
+        grid.innerHTML = '';
+        for (let i = 0; i < Config.ROWS; i++) {
+            for (let j = 0; j < Config.COLS; j++) {
+                const slot = document.createElement('div');
+                slot.className = 'w-slot-size-mobile h-slot-size-mobile md:w-slot-size-desktop md:h-slot-size-desktop rounded-full bg-surface shadow-inner flex items-center justify-center cursor-pointer relative overflow-hidden';
+                slot.setAttribute('data-col', j);
+                slot.setAttribute('data-row', i);
+
+                const inner = document.createElement('div');
+                inner.id = `slot-${i}-${j}`;
+                inner.className = 'w-[85%] h-[85%] rounded-full transition-all duration-300 transform scale-0';
+
+                slot.appendChild(inner);
+                grid.appendChild(slot);
+            }
+        }
+    },
+
+    renderPiece: function (i, j, piece) {
+        const inner = document.getElementById(`slot-${i}-${j}`);
+        if (inner) {
+             if (piece === Config.P1) {
+                  inner.classList.add('bg-error', 'shadow-md');
+             } else if (piece === Config.P2) {
+                  inner.classList.add('bg-secondary', 'shadow-md');
+             }
+             inner.classList.remove('scale-0');
+             inner.classList.add('scale-100');
+        }
     }
 };
-var ROBIN = false; //debug mode, comment to release
-app.loader = new LoaderJS('0.0.1');
-app.loader.load(['app/config/global.config.js', 'app/config/game.config.js'], app.init);
+
+document.addEventListener('DOMContentLoaded', () => {
+    app.init();
+});
+
+// For inline onClick handlers from the HTML
+window.resetGame = () => {
+    app.reset();
+};
