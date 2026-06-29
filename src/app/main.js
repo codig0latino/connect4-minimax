@@ -116,19 +116,39 @@ const app = {
         const turnDot = document.getElementById('turn-dot');
         const cardPlayer = document.getElementById('card-player');
         const cardMachine = document.getElementById('card-machine');
+        const thinkingOverlay = document.getElementById('thinking-overlay');
 
         if (!turnText || !turnDot || !cardPlayer || !cardMachine) return;
 
         if (this.engine._currentPlayer === Config.P1) {
             cardPlayer.classList.add('scale-110');
-            cardMachine.classList.remove('scale-110');
-            turnText.innerText = "TU TURNO";
+            cardMachine.classList.remove('scale-110', 'animate-pulse', 'shadow-[0_0_20px_rgba(255,215,0,0.6)]');
+            turnText.innerHTML = "TU TURNO";
             turnDot.className = "w-3 h-3 rounded-full bg-tertiary";
+            
+            if (thinkingOverlay) {
+                thinkingOverlay.classList.add('opacity-0', '-translate-y-4');
+                thinkingOverlay.classList.remove('translate-y-0');
+            }
         } else {
-            cardMachine.classList.add('scale-110');
+            cardMachine.classList.add('scale-110', 'animate-pulse', 'shadow-[0_0_20px_rgba(255,215,0,0.6)]');
             cardPlayer.classList.remove('scale-110');
-            turnText.innerText = "MÁQUINA PENSANDO";
+            turnText.innerHTML = `
+                <span class="flex items-center gap-1 justify-center">
+                    MÁQUINA PENSANDO
+                    <span class="flex gap-1 items-center ml-2 h-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-secondary animate-bounce" style="animation-delay: 0ms"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-secondary animate-bounce" style="animation-delay: 150ms"></span>
+                        <span class="w-1.5 h-1.5 rounded-full bg-secondary animate-bounce" style="animation-delay: 300ms"></span>
+                    </span>
+                </span>
+            `;
             turnDot.className = "w-3 h-3 rounded-full bg-secondary";
+
+            if (thinkingOverlay) {
+                thinkingOverlay.classList.remove('opacity-0', '-translate-y-4');
+                thinkingOverlay.classList.add('translate-y-0');
+            }
         }
     },
 
@@ -139,6 +159,12 @@ const app = {
         const winnerSubtitle = document.getElementById('winner-subtitle');
         const scorePlayerEl = document.getElementById('score-player');
         const scoreMachineEl = document.getElementById('score-machine');
+        const thinkingOverlay = document.getElementById('thinking-overlay');
+
+        if (thinkingOverlay) {
+            thinkingOverlay.classList.add('opacity-0', '-translate-y-4');
+            thinkingOverlay.classList.remove('translate-y-0');
+        }
 
         if (!winnerModal) return;
 
@@ -168,7 +194,22 @@ const app = {
 
     handlePlayerMove: async function (col) {
         this.isProcessingMove = true;
+        
+        // Show wait cursor and make board translucent to indicate calculation
+        document.body.classList.add('cursor-wait');
+        const boardContainer = document.getElementById('board-container');
+        if (boardContainer) {
+            boardContainer.classList.add('opacity-80', 'pointer-events-none');
+        }
+
         await this.engine.play(0, col, this.ai);
+
+        // Restore cursor and board opacity
+        document.body.classList.remove('cursor-wait');
+        if (boardContainer) {
+            boardContainer.classList.remove('opacity-80', 'pointer-events-none');
+        }
+        
         this.isProcessingMove = false;
     },
 

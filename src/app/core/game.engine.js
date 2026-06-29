@@ -49,7 +49,7 @@ export class Engine {
         if (ai) {
              // Let UI render user piece first
              await new Promise(res => setTimeout(res, 50));
-             const move = ai.play(this._board);
+             const move = await ai.playAsync(this._board);
              const aiActualI = this._board.getRowAvailable(move[1]);
              if (aiActualI !== -1) {
                   this.makePlay(aiActualI, move[1], ai.me);

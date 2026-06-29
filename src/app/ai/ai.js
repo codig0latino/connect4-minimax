@@ -15,9 +15,17 @@ export class AI {
 
     playAsync(board) {
         return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve(this.MiniMax(board));
-            }, 0);
+            const worker = new Worker(new URL('./ai.worker.js', import.meta.url), { type: 'module' });
+            worker.onmessage = (e) => {
+                resolve(e.data.move);
+                worker.terminate();
+            };
+            worker.postMessage({
+                boardState: board._board,
+                me: this.me,
+                human: this.human,
+                level: this.level
+            });
         });
     }
 
