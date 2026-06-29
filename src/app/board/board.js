@@ -71,6 +71,42 @@ export class Board {
         return false;
     }
 
+    getWinningLine() {
+        for (let i = 0; i < K_R; i++) {
+            for (let j = 0; j < K_C; j++) {
+                const val = this.get(i, j);
+                if (!val) continue;
+
+                // Check 4 directions: vertical down, horizontal right, diagonal down-right, diagonal up-right
+                const directions = [
+                    [1, 0],   // vertical down
+                    [0, 1],   // horizontal right
+                    [1, 1],   // diagonal down-right
+                    [-1, 1]   // diagonal up-right
+                ];
+
+                for (const [di, dj] of directions) {
+                    const line = [];
+                    let r = i, c = j;
+                    let match = true;
+                    for (let step = 0; step < K_DEP; step++) {
+                        if (this.outLimit(r, c) || this.get(r, c) !== val) {
+                            match = false;
+                            break;
+                        }
+                        line.push([r, c]);
+                        r += di;
+                        c += dj;
+                    }
+                    if (match) {
+                        return { winner: val, line };
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     restart() {
         this._board = this._board.map(() => 0);
     }

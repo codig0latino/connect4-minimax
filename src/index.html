@@ -216,8 +216,28 @@
 <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-primary mb-2" id="winner-title">¡HAS GANADO!</h2>
 <p class="text-on-surface-variant font-bold" id="winner-subtitle">¡Eres todo un campeón!</p>
 </div>
+<div class="flex flex-col gap-3 w-full">
 <button class="w-full py-4 bg-primary text-white font-extrabold text-xl rounded-full hover:bg-on-primary-container transition-all active:translate-y-1 shadow-[0_6px_0_#004a99]" onclick="resetGame()">¡OTRA VEZ!</button>
+<button class="w-full py-3 bg-soft-sky text-primary font-bold text-lg rounded-full hover:bg-primary-container transition-all active:translate-y-1 border-2 border-primary/20" id="btn-see-board">Ver Tablero</button>
 </div>
+</div>
+</div>
+
+<!-- Floating Game Over Bar -->
+<div id="game-over-bar" class="fixed bottom-20 md:bottom-6 left-1/2 -translate-x-1/2 z-[90] flex items-center gap-4 bg-white/90 backdrop-blur-md border-4 border-primary shadow-2xl rounded-full px-6 py-3 transition-all duration-500 transform translate-y-28 opacity-0 pointer-events-none">
+    <span class="flex items-center gap-2 font-bold text-primary">
+        <span id="game-over-bar-icon" class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">stars</span>
+        <span id="game-over-bar-text" class="text-sm md:text-base font-extrabold">¡Partida Finalizada!</span>
+    </span>
+    <div class="h-6 w-[2px] bg-primary/20"></div>
+    <div class="flex items-center gap-2">
+        <button id="btn-bar-show-modal" class="py-2 px-4 rounded-full bg-soft-sky text-primary text-xs md:text-sm font-bold hover:bg-primary-container active:scale-95 transition-all">
+            Ver Detalle
+        </button>
+        <button class="py-2 px-4 rounded-full bg-primary text-white text-xs md:text-sm font-extrabold hover:opacity-90 active:scale-95 transition-all shadow-md shadow-primary/20" onclick="resetGame()">
+            ¡OTRA VEZ!
+        </button>
+    </div>
 </div>
 <script type="module" src="./app/main.js"></script>
 </body>

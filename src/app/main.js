@@ -75,6 +75,36 @@ const app = {
                  });
             }
         });
+
+        // "Ver Tablero" (See Board) button
+        const btnSeeBoard = document.getElementById('btn-see-board');
+        if (btnSeeBoard) {
+            btnSeeBoard.addEventListener('click', () => {
+                const winnerModal = document.getElementById('winner-modal');
+                if (winnerModal) winnerModal.classList.add('opacity-0', 'pointer-events-none');
+
+                const gameOverBar = document.getElementById('game-over-bar');
+                if (gameOverBar) {
+                    gameOverBar.classList.remove('translate-y-28', 'opacity-0', 'pointer-events-none');
+                    gameOverBar.classList.add('translate-y-0', 'opacity-100');
+                }
+            });
+        }
+
+        // "Ver Detalle" (Show Details) button on the floating bar
+        const btnBarShowModal = document.getElementById('btn-bar-show-modal');
+        if (btnBarShowModal) {
+            btnBarShowModal.addEventListener('click', () => {
+                const winnerModal = document.getElementById('winner-modal');
+                if (winnerModal) winnerModal.classList.remove('opacity-0', 'pointer-events-none');
+
+                const gameOverBar = document.getElementById('game-over-bar');
+                if (gameOverBar) {
+                    gameOverBar.classList.add('translate-y-28', 'opacity-0', 'pointer-events-none');
+                    gameOverBar.classList.remove('translate-y-0', 'opacity-100');
+                }
+            });
+        }
     },
 
     startGame: function (difficulty) {
@@ -160,10 +190,26 @@ const app = {
         const scorePlayerEl = document.getElementById('score-player');
         const scoreMachineEl = document.getElementById('score-machine');
         const thinkingOverlay = document.getElementById('thinking-overlay');
+        const gameOverBarText = document.getElementById('game-over-bar-text');
+        const gameOverBarIcon = document.getElementById('game-over-bar-icon');
 
         if (thinkingOverlay) {
             thinkingOverlay.classList.add('opacity-0', '-translate-y-4');
             thinkingOverlay.classList.remove('translate-y-0');
+        }
+
+        // Highlight winning line if it exists
+        const winningLineInfo = this.engine.getBoard().getWinningLine();
+        if (winningLineInfo) {
+            winningLineInfo.line.forEach(([r, c]) => {
+                const slot = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                if (slot) {
+                    const pieceEl = slot.querySelector('.piece');
+                    if (pieceEl) {
+                        pieceEl.classList.add('win-line');
+                    }
+                }
+            });
         }
 
         if (!winnerModal) return;
@@ -175,6 +221,12 @@ const app = {
             if (winnerSubtitle) winnerSubtitle.innerText = "¡Eres un genio de la estrategia!";
             winnerIcon.className = "material-symbols-outlined text-8xl text-secondary";
             winnerIcon.innerText = "stars";
+
+            if (gameOverBarText) gameOverBarText.innerText = "¡HAS GANADO!";
+            if (gameOverBarIcon) {
+                gameOverBarIcon.innerText = "stars";
+                gameOverBarIcon.className = "material-symbols-outlined text-2xl text-secondary";
+            }
         } else if (winner === Config.P2) {
             this.scores.machine++;
             if (scoreMachineEl) scoreMachineEl.innerText = this.scores.machine;
@@ -182,11 +234,23 @@ const app = {
             if (winnerSubtitle) winnerSubtitle.innerText = "¡Casi lo logras! ¡Inténtalo de nuevo!";
             winnerIcon.className = "material-symbols-outlined text-8xl text-primary";
             winnerIcon.innerText = "smart_toy";
+
+            if (gameOverBarText) gameOverBarText.innerText = "GANÓ LA MÁQUINA";
+            if (gameOverBarIcon) {
+                gameOverBarIcon.innerText = "smart_toy";
+                gameOverBarIcon.className = "material-symbols-outlined text-2xl text-primary";
+            }
         } else {
             winnerTitle.innerText = "¡EMPATE!";
             if (winnerSubtitle) winnerSubtitle.innerText = "¡Ha sido una partida increíble!";
             winnerIcon.className = "material-symbols-outlined text-8xl text-on-surface-variant";
             winnerIcon.innerText = "handshake";
+
+            if (gameOverBarText) gameOverBarText.innerText = "¡EMPATE!";
+            if (gameOverBarIcon) {
+                gameOverBarIcon.innerText = "handshake";
+                gameOverBarIcon.className = "material-symbols-outlined text-2xl text-on-surface-variant";
+            }
         }
 
         winnerModal.classList.remove('opacity-0', 'pointer-events-none');
@@ -217,9 +281,16 @@ const app = {
         this.engine.restart();
         this.renderBoard();
         this.updateActiveCard();
+        
         const winnerModal = document.getElementById('winner-modal');
         if (winnerModal) {
             winnerModal.classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        const gameOverBar = document.getElementById('game-over-bar');
+        if (gameOverBar) {
+            gameOverBar.classList.add('translate-y-28', 'opacity-0', 'pointer-events-none');
+            gameOverBar.classList.remove('translate-y-0', 'opacity-100');
         }
     },
 
