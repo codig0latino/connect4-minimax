@@ -1,56 +1,74 @@
-var Game;
-(function (Game) {
-    'use strict';
+import { Config } from '../config/game.config.js';
+import { Board } from '../board/board.js';
+import { AI } from '../ai/ai.js';
 
-    function Engine() {
-        var _this = this;
-        var _isGameOver = false;
-        var _currentPlayer = Game.Config.P1;
-        var _board = new Game.Board();
+export class Engine {
+    constructor() {
+        this._isGameOver = false;
+        this._currentPlayer = Config.P1;
+        this._board = new Board();
+        this.onPlay = () => {};
+        this.onGameOver = () => {};
+    }
 
-        ///
-        this.restart = restart;
-        this.makePlay = makePlay;
-        this.play = play;
-        this.getBoard = getBoard;
-
-        function makePlay(i, j, player) {
-            if(_currentPlayer != player) {
-                console.log("Is not your turn");
-                return;
-            }
-            if (_board.set(i, j, _currentPlayer)) {
-                _currentPlayer = _currentPlayer == Game.Config.P1 ? Game.Config.P2 : Game.Config.P1;
-                console.info(_board.toString());
-                console.log(i, j);
-            } else {
-                console.info("Move not valid");
-            }
+    makePlay(i, j, player) {
+        if(this._currentPlayer != player) {
+            console.log("Is not your turn");
+            return;
         }
-
-        function play(i, j) {
-            if (i instanceof Game.AI) {
-                var move = i.play(_board);
-                makePlay(move[0], move[1], i.me);
-/*                i.playAsync(_board).then(function (ply) {
-                    makePlay(ply[0], ply[1], i.me);
-                });*/
-            } else {
-                makePlay(i, j, _currentPlayer);
-            }
-            console.log(_isGameOver = _board.isGameOver());
-            console.log(_currentPlayer);
-        }
-
-        function restart() {
-            _isGameOver = false;
-            _board.restart();
-        }
-
-        function getBoard() {
-            return _board;
+        if (this._board.set(i, j, this._currentPlayer)) {
+            const piece = this._currentPlayer;
+            this._currentPlayer = this._currentPlayer == Config.P1 ? Config.P2 : Config.P1;
+            console.info(this._board.toString());
+            this.onPlay(i, j, piece);
+        } else {
+            console.info("Move not valid");
         }
     }
 
-    Game.Engine = Engine;
-})(Game || (Game = {}));
+    async play(i, j, ai) {
+        if (this._isGameOver) return;
+
+        // Connect 4 enforces pieces falling to bottom, so we calculate i based on j
+        const actualI = this._board.getRowAvailable(j);
+        if(actualI === -1) {
+             console.log("Column is full");
+             return;
+        }
+
+        this.makePlay(actualI, j, this._currentPlayer);
+
+        let over = this._board.isGameOver();
+        if (over) {
+            this._isGameOver = true;
+            this.onGameOver(over);
+            return;
+        }
+
+        // AI Turn
+        if (ai) {
+             // Let UI render user piece first
+             await new Promise(res => setTimeout(res, 50));
+             const move = ai.play(this._board);
+             const aiActualI = this._board.getRowAvailable(move[1]);
+             if (aiActualI !== -1) {
+                  this.makePlay(aiActualI, move[1], ai.me);
+                  over = this._board.isGameOver();
+                  if (over) {
+                      this._isGameOver = true;
+                      this.onGameOver(over);
+                  }
+             }
+        }
+    }
+
+    restart() {
+        this._isGameOver = false;
+        this._currentPlayer = Config.P1;
+        this._board.restart();
+    }
+
+    getBoard() {
+        return this._board;
+    }
+}
