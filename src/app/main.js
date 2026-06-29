@@ -5,7 +5,8 @@ import { AI } from './ai/ai.js';
 const DIFFICULTY_MAP = {
     'fácil': Config.Dificult.Easy,
     'medio': Config.Dificult.Medium,
-    'difícil': Config.Dificult.Hard
+    'difícil': Config.Dificult.Hard,
+    'imposible': Config.Dificult.Impossible
 };
 
 const app = {
@@ -91,6 +92,7 @@ const app = {
             if (difficulty === 'fácil') btnShowDifficulty.classList.add('bg-difficulty-easy');
             else if (difficulty === 'medio') btnShowDifficulty.classList.add('bg-difficulty-medium');
             else if (difficulty === 'difícil') btnShowDifficulty.classList.add('bg-difficulty-hard');
+            else if (difficulty === 'imposible') btnShowDifficulty.classList.add('bg-difficulty-impossible');
         }
 
         // Hide difficulty modal

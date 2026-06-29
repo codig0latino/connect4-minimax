@@ -8,6 +8,8 @@ export const Config = {
     Dificult: {
         Easy: 3,
         Medium: 4,
-        Hard: 5
+        Hard: 5,
+        Impossible: 8
     }
 };
+

@@ -27,7 +27,8 @@ module.exports = {
         "soft-sky": "#e0f2fe",
         "difficulty-easy": "#4ade80",
         "difficulty-medium": "#fb923c",
-        "difficulty-hard": "#f87171"
+        "difficulty-hard": "#f87171",
+        "difficulty-impossible": "#a855f7"
       },
       "borderRadius": {
         "DEFAULT": "1rem",

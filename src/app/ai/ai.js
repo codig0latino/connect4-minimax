@@ -30,9 +30,11 @@ export class AI {
     }
 
     // Adapt getGameNodes for Connect 4: only the top available slot in each column is valid
+    // Ordered middle-out (3, 2, 4, 1, 5, 0, 6) to maximize alpha-beta pruning efficiency
     getGameNodes(board) {
         const nodes = [];
-        for (let j = 0; j < Config.COLS; j++) {
+        const order = [3, 2, 4, 1, 5, 0, 6];
+        for (const j of order) {
             const i = board.getRowAvailable(j);
             if (i !== -1) {
                 nodes.push([i, j]);

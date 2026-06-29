@@ -29,10 +29,11 @@ export class Board {
 
     hasCollide(i, j) {
         const val = this.get(i, j);
-        return val ? this.isColliding(i, j, -1, -1, 1, val) || this.isColliding(i, j, 1, 0, 1, val) ||
-            this.isColliding(i, j, 0, -1, 1, val) || this.isColliding(i, j, -1, 1, 1, val) ||
-            this.isColliding(i, j, 1, -1, 1, val) || this.isColliding(i, j, 0, 1, 1, val) ||
-            this.isColliding(i, j, -1, 0, 1, val) || this.isColliding(i, j, 1, 1, 1, val) : false;
+        if (!val) return false;
+        return this.isColliding(i, j, 1, 0, 1, val) ||   // vertical down
+               this.isColliding(i, j, 0, 1, 1, val) ||   // horizontal right
+               this.isColliding(i, j, 1, 1, 1, val) ||   // diagonal down-right
+               this.isColliding(i, j, -1, 1, 1, val);   // diagonal up-right
     }
 
     isColliding(i, j, di, dj, dep, val) {
