@@ -1,4 +1,4 @@
-name = "connect4"
+name = "connect4-minimax"
 compatibility_date = "2026-06-29"
 
 [assets]
