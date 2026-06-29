@@ -59,10 +59,6 @@ const app = {
         if (btnShowDifficulty) {
             btnShowDifficulty.addEventListener('click', () => this.showDifficultySelector());
         }
-        const btnShowDifficultyMobile = document.getElementById('btn-show-difficulty-mobile');
-        if (btnShowDifficultyMobile) {
-            btnShowDifficultyMobile.addEventListener('click', () => this.showDifficultySelector());
-        }
 
         // Restart / Play Again buttons
         const restartBtns = document.querySelectorAll('button');
@@ -302,7 +298,7 @@ const app = {
         for (let i = 0; i < Config.ROWS; i++) {
             for (let j = 0; j < Config.COLS; j++) {
                 const slot = document.createElement('div');
-                slot.className = 'slot w-[44px] h-[44px] md:w-[80px] md:h-[80px] rounded-full bg-white';
+                slot.className = 'slot w-[38px] h-[38px] min-[380px]:w-[44px] min-[380px]:h-[44px] md:w-[80px] md:h-[80px] rounded-full bg-white';
                 slot.setAttribute('data-col', j);
                 slot.setAttribute('data-row', i);
                 grid.appendChild(slot);
